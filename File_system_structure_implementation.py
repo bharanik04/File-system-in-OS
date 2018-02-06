@@ -2,13 +2,26 @@
 """
 Created on Tue Oct 24 11:45:17 2017
 
-@author: bharani
+@author: Bharani Kodirangaiah
+•	100 blocks (sectors) numbered from 0-99, each contains 512 bytes of data.
+•	Not concerned about placement of the blocks on the disk.
+•	All access to the disk should be done through two procedure DREAD and DWRITE.
+Note: No need to do actual disk reads and writes; the entire disk can be simulated using a 50K block of memory.
+•	Front end program that processes commands: 
+    	File create, open, close, delete, read, write, and seek functions
+•	When the end of the input data is reached, the following information will be displayed:
+	    Directory (illustrating it’s hierarchical structure)
+	    Length of each file (in bytes)
+	    Number of free directory and user data blocks.
 """
 import json
 
 class Disk:
     
     def __init__(self):
+        '''
+        Initializing
+        '''
         self.open=0
         self.seek=0
         self.links=[]
@@ -29,10 +42,10 @@ class Disk:
     
     def initialize_block(self,dir_no,block_size):
         for i in range(block_size):
-            dir_1=[['F',0,0,0]]
+            dir_1=[['F','xxx',-1,0]]
             for j in range(dir_no):
-                dir_1.append(['F',0,0,0])
-            block=[0,0,0]
+                dir_1.append(['F','xx',-1,0])
+            block=[-1,-1,'xxx']
             block.insert(3,dir_1)
             self.blocks.append(block)
 
@@ -70,6 +83,9 @@ class Disk:
         iter_row(self.blocks[0])     
         
     def command(self):
+        '''
+        Test commands: test creating file/directory and wrting to file type seeking, deleting
+        '''
         self.create('U','main.txt')
         self.write(10,'hello my first')
         self.create('D','dir1')
@@ -169,6 +185,9 @@ class Disk:
 
         
     def write_to_file(self):
+        '''
+        To store the curent file system state, store the blocks in JSON format to local system
+        '''
         dic={"Blocks":self.blocks,
              "FreeSpaceList": self.free_space_list}
         
@@ -177,6 +196,9 @@ class Disk:
         print("Filesystem is saved in JSONData.json")
     
     def get_from_file(self):
+        '''
+        read from the stored JSON file and resotre the previous session when selected
+        '''
         with open('JSONData.json','r') as f:
             data=json.load(f)
         self.free_space_list=data['FreeSpaceList']
@@ -184,6 +206,9 @@ class Disk:
         print("Old file system is loaded")
       
     def get_freespace(self):
+        '''
+        function returns the free block available
+        '''
         if 0 not in self.free_space_list:
             print("No free space available")
             return
@@ -191,6 +216,9 @@ class Disk:
         return a
     
     def set_freespace(self):
+        '''
+        function sets the particular block unavailable once it is assigned to file/directory created
+        '''
         if 0 not in self.free_space_list:
             print("No free space available")
             return
@@ -215,6 +243,7 @@ class Disk:
             return 
 
     def create(self,typ,name):
+        
         self.create1=1
         self.typ=typ.upper()
         self.name=name
